@@ -1,0 +1,29 @@
+  <table style="font-size: .9em">
+    <tr>
+      <th>Station</th><th>Arrival</th><th>Departure</th><th>Comment</th>
+    </tr>
+    {% for station in train["stations"] %}
+    <tr>
+      <th>{{ station["code"] }}</th>
+      <td>
+        {% if station["arrived"] %}
+          <span style="color: green">{{ station["actual"]["arrival"] }}</span>
+        {% else %}
+          <span style="color: grey">{{ station["estimated"]["arrival"] }}</span>
+        {% endif %}
+      </td>
+      <td>
+        {% if station["departed"] %}
+          <span style="color: green">{{ station["actual"]["departure"] }}</span>
+        {% else %}
+          <span style="color: grey">{{ station["estimated"]["departure"] }}</span>
+        {% endif %}
+      </td>
+      <td>
+        <small>{% if station["actual"]["comment"] %}{{ station["actual"]["comment"] }}{% endif %}</small>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  <small>Last Updated (from Amtrak): {{ train["last_update"] }}</small><br>
+  <small>Last Fetched (by this site): {{ train["last_fetched"] }}</small>
