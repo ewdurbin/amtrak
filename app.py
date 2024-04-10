@@ -1,6 +1,8 @@
 import asyncio
 import concurrent.futures
 import json
+import traceback
+from functools import partial
 from pathlib import Path
 
 
@@ -9,9 +11,12 @@ from aiohttp import web
 import aiohttp_jinja2
 import jinja2
 
-from amtrak import decrypt_data, parse_crypto, parse_trains, parse_stations
+from amtrak import decrypt_data, parse_crypto, parse_trains
+from util import DateTimeEncoder
 
 routes = web.RouteTableDef()
+
+json_dumps = partial(json.dumps, cls=DateTimeEncoder)
 
 
 async def fetch_crypto():
@@ -47,7 +52,7 @@ async def refresh_trains_task(app):
             except concurrent.futures.CancelledError:
                 raise
             except Exception as exc:
-                pass
+                traceback.print_exception(exc)
             await asyncio.sleep(10)
         except concurrent.futures.CancelledError:
             return
@@ -56,7 +61,7 @@ async def refresh_trains_task(app):
 @routes.get("/trains/json")
 async def trains_json(request):
     data = request.app["_trains"]
-    return web.json_response(data)
+    return web.json_response(data, dumps=json_dumps)
 
 
 @routes.get("/trains/{train_number}/json")
@@ -64,7 +69,7 @@ async def train_json(request):
     data = request.app["_trains"]
     train_number = request.match_info["train_number"]
     if train_number in data.keys():
-        return web.json_response(data[train_number])
+        return web.json_response(data[train_number], dumps=json_dumps)
     return web.json_response({"message": "Train not found"}, status=404)
 
 
@@ -80,7 +85,7 @@ async def train(request):
 
 @routes.get("/trains/{train_number}/_partial")
 @aiohttp_jinja2.template("train_partial.jinja2")
-async def train(request):
+async def train_partial(request):
     data = request.app["_trains"]
     train_number = request.match_info["train_number"]
     if train_number in data.keys():

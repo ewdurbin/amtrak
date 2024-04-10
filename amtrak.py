@@ -1,6 +1,7 @@
 import datetime
 import base64
 import json
+from collections import OrderedDict
 from zoneinfo import ZoneInfo
 
 import requests
@@ -69,13 +70,6 @@ def decrypt_data(_data, public_key, salt, iv):
     return data
 
 
-with open("stations.json", "r") as f:
-    _stations = json.loads(f.read())
-
-with open("trains.json", "r") as f:
-    _trains = json.loads(f.read())
-
-
 def parse_stations(stations):
     _stations = {}
     for _station in stations["StationsDataResponse"]["features"]:
@@ -88,50 +82,79 @@ def parse_stations(stations):
 
 TIMEZONES = {
     "E": ZoneInfo("America/New_York"),
+    "America/New_York": ZoneInfo("America/New_York"),
     "C": ZoneInfo("America/Chicago"),
+    "America/Chicago": ZoneInfo("America/Chicago"),
     "M": ZoneInfo("America/Denver"),
+    "America/Denver": ZoneInfo("America/Denver"),
     "P": ZoneInfo("America/Los_Angeles"),
+    "America/Los_Angeles": ZoneInfo("America/Los_Angeles"),
 }
+
+
+def parse_date(date, timezone_identifier):
+    if date is not None:
+        try:
+            return datetime.datetime.strptime(date, "%m/%d/%Y %H:%M:%S").astimezone(
+                tz=TIMEZONES[timezone_identifier]
+            )
+        except ValueError:
+            return datetime.datetime.strptime(date, "%m/%d/%Y %H:%M:%S %p").astimezone(
+                tz=TIMEZONES[timezone_identifier]
+            )
+    return None
 
 
 def parse_trains(trains):
     _trains = {}
     for _train in trains["features"]:
-        _stations = []
+        _stations = OrderedDict()
         for i in range(100):
             data = _train["properties"].get(f"Station{i}", None)
             if data is not None:
                 data = json.loads(data)
-                _stations.append(
-                    {
-                        "code": data["code"],
-                        "arrived": True if "postarr" in data.keys() else False,
-                        "departed": True if "postdep" in data.keys() else False,
-                        "scheduled": {
-                            "arrival": data.get("scharr", None),
-                            "departure": data.get("schdep", None),
-                            "comment": data.get("schcmnt", None),
-                        },
-                        "estimated": {
-                            "arrival": data.get("estarr", None),
-                            "departure": data.get("estdep", None),
-                            "comment": data.get("estcmnt", None),
-                        },
-                        "actual": {
-                            "arrival": data.get("postarr", None),
-                            "departure": data.get("postdep", None),
-                            "comment": data.get("postcmnt", None),
-                        },
-                    }
-                )
+                _stations[data["code"]] = {
+                    "code": data["code"],
+                    "tz": TIMEZONES[data["tz"]].key,
+                    "arrived": True if "postarr" in data.keys() else False,
+                    "departed": True if "postdep" in data.keys() else False,
+                    "scheduled": {
+                        "arrival": parse_date(data.get("scharr", None), data.get("tz")),
+                        "departure": parse_date(
+                            data.get("schdep", None), data.get("tz")
+                        ),
+                        "comment": data.get("schcmnt", None),
+                    },
+                    "estimated": {
+                        "arrival": parse_date(data.get("estarr", None), data.get("tz")),
+                        "departure": parse_date(
+                            data.get("estdep", None), data.get("tz")
+                        ),
+                        "comment": data.get("estcmnt", None),
+                    },
+                    "actual": {
+                        "arrival": parse_date(
+                            data.get("postarr", None), data.get("tz")
+                        ),
+                        "departure": parse_date(
+                            data.get("postdep", None), data.get("tz")
+                        ),
+                        "comment": data.get("postcmnt", None),
+                    },
+                }
+        cur_tz = (
+            _stations[_train["properties"]["EventCode"]]["tz"]
+            if _train["properties"]["EventCode"] is not None
+            else _train["properties"]["OriginTZ"]
+        )
         _trains[_train["properties"]["TrainNum"]] = {
             "route_name": _train["properties"]["RouteName"],
             "train_number": _train["properties"]["TrainNum"],
-            "last_update": _train["properties"]["LastValTS"],
+            "last_update": parse_date(_train["properties"]["LastValTS"], cur_tz),
             "stations": _stations,
-            "last_fetched": datetime.datetime.utcnow()
-            .astimezone(tz=TIMEZONES[_train["properties"]["OriginTZ"]])
-            .strftime("%-m/%-d/%Y %-I:%M:%S %p %Z"),
+            "last_fetched": datetime.datetime.now()
+            .replace(microsecond=0)
+            .astimezone(tz=TIMEZONES[cur_tz]),
         }
     return _trains
 
