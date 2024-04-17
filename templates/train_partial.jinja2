@@ -1,6 +1,6 @@
   <table style="font-size: .9em">
     <tr>
-      <th>Station</th><th>Arrival</th><th>Departure</th><th>Comment</th>
+      <th>Station</th><th>Arrival</th><th>Comment</th><th>Departure</th><th>Comment</th>
     </tr>
     {% for station in train["stations"].values() %}
     <tr>
@@ -13,6 +13,13 @@
         {% endif %}
       </td>
       <td>
+        {% if station["arrived"] %}
+          <small>{% if station["actual"]["comment"] %}{{ station["actual"]["comment"] }}{% endif %}</small>
+        {% else %}
+          <small>{% if station["estimated"]["arrival_comment"] %}{{ station["estimated"]["arrival_comment"] }}{% endif %}</small>
+        {% endif %}
+      </td>
+      <td>
         {% if station["departed"] %}
           <span style="color: green">{{ station["actual"]["departure"] }}</span>
         {% else %}
@@ -20,7 +27,11 @@
         {% endif %}
       </td>
       <td>
-        <small>{% if station["actual"]["comment"] %}{{ station["actual"]["comment"] }}{% endif %}</small>
+        {% if station["departed"] %}
+          <small>{% if station["actual"]["comment"] %}{{ station["actual"]["comment"] }}{% endif %}</small>
+        {% else %}
+          <small>{% if station["estimated"]["departure_comment"] %}{{ station["estimated"]["departure_comment"] }}{% endif %}</small>
+        {% endif %}
       </td>
     </tr>
     {% endfor %}

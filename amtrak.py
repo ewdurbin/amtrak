@@ -130,7 +130,8 @@ def parse_trains(trains):
                         "departure": parse_date(
                             data.get("estdep", None), data.get("tz")
                         ),
-                        "comment": data.get("estcmnt", None),
+                        "arrival_comment": data.get("estarrcmnt", None),
+                        "departure_comment": data.get("estdepcmnt", None),
                     },
                     "actual": {
                         "arrival": parse_date(
