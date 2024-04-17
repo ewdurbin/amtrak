@@ -1,0 +1,16 @@
+{% extends 'base.jinja2' %}
+{% block content %}
+<h1>Active Trains</h1>
+{% set all_trains = [] %}
+{% for numbered_trains in trains.values() %}
+  {% for numbered_train in numbered_trains %}
+    {{ all_trains.append(numbered_train) or "" }}
+  {% endfor %}
+{% endfor %}
+{% for route_name, trains in all_trains|groupby("route_name") %}
+<h2>{{ route_name }}</h2>
+{% for train in trains|sort(attribute="train_number") %}
+  {{ train["train_number"] }}
+{% endfor %}
+{% endfor %}
+{% endblock %}

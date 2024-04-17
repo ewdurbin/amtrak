@@ -58,6 +58,13 @@ async def refresh_trains_task(app):
             return
 
 
+@routes.get("/trains")
+@aiohttp_jinja2.template("trains.jinja2")
+async def trains(request):
+    data = request.app["_trains"]
+    return {"trains": data}
+
+
 @routes.get("/trains/json")
 async def trains_json(request):
     data = request.app["_trains"]
@@ -73,23 +80,49 @@ async def train_json(request):
     return web.json_response({"message": "Train not found"}, status=404)
 
 
-@routes.get("/trains/{train_number}")
-@aiohttp_jinja2.template("train.jinja2")
-async def train(request):
-    data = request.app["_trains"]
-    train_number = request.match_info["train_number"]
-    if train_number in data.keys():
-        return {"train": data[train_number]}
-    raise web.HTTPNotFound(reason="Train not found")
-
-
 @routes.get("/trains/{train_number}/_partial")
+@routes.get("/trains/{train_number}/{train_id}/_partial")
 @aiohttp_jinja2.template("train_partial.jinja2")
 async def train_partial(request):
     data = request.app["_trains"]
     train_number = request.match_info["train_number"]
+    train_id = request.match_info.get("train_id")
     if train_number in data.keys():
-        return {"train": data[train_number]}
+        if train_id is None:
+            return {
+                "train": data[train_number][0],
+                "train_ids": [t["id"] for t in data[train_number]],
+            }
+        else:
+            for train in data[train_number]:
+                if train["id"] == int(train_id):
+                    return {
+                        "train": train,
+                        "train_ids": [t["id"] for t in data[train_number]],
+                    }
+    raise web.HTTPNotFound(reason="Train not found")
+
+
+@routes.get("/trains/{train_number}")
+@routes.get("/trains/{train_number}/{train_id}")
+@aiohttp_jinja2.template("train.jinja2")
+async def train(request):
+    data = request.app["_trains"]
+    train_number = request.match_info["train_number"]
+    train_id = request.match_info.get("train_id")
+    if train_number in data.keys():
+        if train_id is None:
+            return {
+                "train": data[train_number][0],
+                "train_ids": [t["id"] for t in data[train_number]],
+            }
+        else:
+            for train in data[train_number]:
+                if train["id"] == int(train_id):
+                    return {
+                        "train": train,
+                        "train_ids": [t["id"] for t in data[train_number]],
+                    }
     raise web.HTTPNotFound(reason="Train not found")
 
 

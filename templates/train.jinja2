@@ -1,7 +1,10 @@
 {% extends 'base.jinja2' %}
 {% block content %}
 <h1>{{ train["route_name"] }}</h1>
-<div hx-get="/trains/{{ train["train_number"] }}/_partial" hx-trigger="every 5s" hx-swap="innerHTML transition:true">
+{% if train_ids|length > 1 %}
+  <small>Other trains: {% for id in train_ids %}{% if train["id"] != id %}<a href="/trains/{{ train["train_number"] }}/{{ id }}">{{ id }}</a>{% endif %}{% endfor %}</small>
+{% endif %}
+<div hx-get="/trains/{{ train["train_number"] }}/{{ train["id"] }}/_partial" hx-trigger="every 5s" hx-swap="innerHTML transition:true">
   {% include 'train_partial.jinja2' %}
 </div>
 {% endblock %}

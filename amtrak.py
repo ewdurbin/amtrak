@@ -1,7 +1,7 @@
 import datetime
 import base64
 import json
-from collections import OrderedDict
+from collections import defaultdict, OrderedDict
 from zoneinfo import ZoneInfo
 
 import requests
@@ -106,7 +106,7 @@ def parse_date(date, timezone_identifier):
 
 
 def parse_trains(trains):
-    _trains = {}
+    _trains = defaultdict(list)
     for _train in trains["features"]:
         _stations = OrderedDict()
         for i in range(100):
@@ -147,15 +147,18 @@ def parse_trains(trains):
             if _train["properties"]["EventCode"] is not None
             else _train["properties"]["OriginTZ"]
         )
-        _trains[_train["properties"]["TrainNum"]] = {
-            "route_name": _train["properties"]["RouteName"],
-            "train_number": _train["properties"]["TrainNum"],
-            "last_update": parse_date(_train["properties"]["LastValTS"], cur_tz),
-            "stations": _stations,
-            "last_fetched": datetime.datetime.now()
-            .replace(microsecond=0)
-            .astimezone(tz=TIMEZONES[cur_tz]),
-        }
+        _trains[_train["properties"]["TrainNum"]].append(
+            {
+                "route_name": _train["properties"]["RouteName"],
+                "train_number": _train["properties"]["TrainNum"],
+                "id": _train["properties"]["ID"],
+                "last_update": parse_date(_train["properties"]["LastValTS"], cur_tz),
+                "stations": _stations,
+                "last_fetched": datetime.datetime.now()
+                .replace(microsecond=0)
+                .astimezone(tz=TIMEZONES[cur_tz]),
+            }
+        )
     return _trains
 
 
