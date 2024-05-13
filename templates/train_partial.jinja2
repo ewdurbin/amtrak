@@ -44,5 +44,5 @@
     </tr>
     {% endfor %}
   </table>
-  <small>Last Updated (from Amtrak): {{ train["last_update"] }}</small><br>
-  <small>Last Fetched (by this site): {{ train["last_fetched"] }}</small>
+  <small>Last Updated (from Amtrak): {{ train["last_update"].astimezone(train["last_update"].tzinfo).strftime("%-I:%M:%S %p %Z") }}</small><br>
+  <small>Last Fetched (by this site): {{ train["last_fetched"].astimezone(train["last_fetched"].tzinfo).strftime("%-I:%M:%S %p %Z") }}</small>

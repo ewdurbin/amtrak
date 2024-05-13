@@ -99,7 +99,7 @@ def parse_date(date, timezone_identifier):
                 tzinfo=TIMEZONES[timezone_identifier]
             )
         except ValueError:
-            return datetime.datetime.strptime(date, "%m/%d/%Y %H:%M:%S %p").replace(
+            return datetime.datetime.strptime(date, "%m/%d/%Y %I:%M:%S %p").replace(
                 tzinfo=TIMEZONES[timezone_identifier]
             )
     return None
@@ -155,7 +155,7 @@ def parse_trains(trains):
                 "id": _train["properties"]["ID"],
                 "last_update": parse_date(_train["properties"]["LastValTS"], cur_tz),
                 "stations": _stations,
-                "last_fetched": datetime.datetime.now()
+                "last_fetched": datetime.datetime.utcnow()
                 .replace(microsecond=0)
                 .astimezone(tz=TIMEZONES[cur_tz]),
             }
