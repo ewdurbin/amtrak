@@ -18,6 +18,10 @@ routes = web.RouteTableDef()
 
 json_dumps = partial(json.dumps, cls=DateTimeEncoder)
 
+import os
+
+os.environ["TZ"] = "UTC"
+
 
 async def fetch_crypto():
     async with aiohttp.ClientSession() as session:

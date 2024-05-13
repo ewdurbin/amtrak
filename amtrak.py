@@ -95,12 +95,12 @@ TIMEZONES = {
 def parse_date(date, timezone_identifier):
     if date is not None:
         try:
-            return datetime.datetime.strptime(date, "%m/%d/%Y %H:%M:%S").astimezone(
-                tz=TIMEZONES[timezone_identifier]
+            return datetime.datetime.strptime(date, "%m/%d/%Y %H:%M:%S").replace(
+                tzinfo=TIMEZONES[timezone_identifier]
             )
         except ValueError:
-            return datetime.datetime.strptime(date, "%m/%d/%Y %H:%M:%S %p").astimezone(
-                tz=TIMEZONES[timezone_identifier]
+            return datetime.datetime.strptime(date, "%m/%d/%Y %H:%M:%S %p").replace(
+                tzinfo=TIMEZONES[timezone_identifier]
             )
     return None
 
