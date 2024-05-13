@@ -7,9 +7,13 @@
       <th>{{ station["code"] }}</th>
       <td>
         {% if station["arrived"] %}
-          <span style="color: green">{{ station["actual"]["arrival"] }}</span>
+          {% if station["actual"]["arrival"] %}
+            <span style="color: green">{{ station["actual"]["arrival"].strftime("%-I:%M %p") }}</span>
+          {% endif %}
         {% else %}
-          <span style="color: grey">{{ station["estimated"]["arrival"] }}</span>
+          {% if station["estimated"]["arrival"] %}
+            <span style="color: grey">{{ station["estimated"]["arrival"].strftime("%-I:%M %p") }}</span>
+          {% endif %}
         {% endif %}
       </td>
       <td>
@@ -21,9 +25,13 @@
       </td>
       <td>
         {% if station["departed"] %}
-          <span style="color: green">{{ station["actual"]["departure"] }}</span>
+          {% if station["actual"]["departure"] %}
+            <span style="color: green">{{ station["actual"]["departure"].strftime("%-I:%M %p") }}</span>
+          {% endif %}
         {% else %}
-          <span style="color: grey">{{ station["estimated"]["departure"] }}</span>
+          {% if station["estimated"]["departure"] %}
+            <span style="color: grey">{{ station["estimated"]["departure"].strftime("%-I:%M %p") }}</span>
+          {% endif %}
         {% endif %}
       </td>
       <td>
