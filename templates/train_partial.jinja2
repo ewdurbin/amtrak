@@ -8,11 +8,11 @@
       <td>
         {% if station["arrived"] %}
           {% if station["actual"]["arrival"] %}
-            <span style="color: green">{{ station["actual"]["arrival"].strftime("%-I:%M %p") }}</span>
+            <span style="color: green">{{ station["actual"]["arrival"].astimezone(station["actual"]["arrival"].tzinfo).strftime("%-I:%M %p %Z") }}</span>
           {% endif %}
         {% else %}
           {% if station["estimated"]["arrival"] %}
-            <span style="color: grey">{{ station["estimated"]["arrival"].strftime("%-I:%M %p") }}</span>
+            <span style="color: grey">{{ station["estimated"]["arrival"].astimezone(station["estimated"]["arrival"].tzinfo).strftime("%-I:%M %p %Z") }}</span>
           {% endif %}
         {% endif %}
       </td>
@@ -26,11 +26,11 @@
       <td>
         {% if station["departed"] %}
           {% if station["actual"]["departure"] %}
-            <span style="color: green">{{ station["actual"]["departure"].strftime("%-I:%M %p") }}</span>
+            <span style="color: green">{{ station["actual"]["departure"].astimezone(station["actual"]["departure"].tzinfo).strftime("%-I:%M %p %Z") }}</span>
           {% endif %}
         {% else %}
           {% if station["estimated"]["departure"] %}
-            <span style="color: grey">{{ station["estimated"]["departure"].strftime("%-I:%M %p") }}</span>
+            <span style="color: grey">{{ station["estimated"]["departure"].astimezone(station["estimated"]["departure"].tzinfo).strftime("%-I:%M %p %Z") }}</span>
           {% endif %}
         {% endif %}
       </td>
