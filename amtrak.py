@@ -1,6 +1,7 @@
 import datetime
 import base64
 import json
+import re
 from collections import defaultdict, OrderedDict
 from zoneinfo import ZoneInfo
 
@@ -105,6 +106,34 @@ def parse_date(date, timezone_identifier):
     return None
 
 
+comment_pattern = re.compile(
+    r"^((?P<hr>\d?\d) HR )?((?P<mi>\d?\d) MI)? (?P<state>LATE|EARLY)$"
+)
+
+
+def parse_comment(comment):
+    match = comment_pattern.match(comment)
+    if match:
+        hour = int(match.group("hr")) if match.group("hr") else None
+        minutes = int(match.group("mi")) if match.group("mi") else None
+        status = match.group("state")
+        if status == "LATE":
+            return (
+                -1,
+                f"{str(hour).zfill(2) if hour else '00'}:{str(minutes).zfill(2)} {status.lower()}",
+            )
+        elif status == "EARLY":
+            return (
+                1,
+                f"{str(hour).zfill(2) if hour else '00'}:{str(minutes).zfill(2)} {status.lower()}",
+            )
+        return
+    elif comment == "ON TIME":
+        return (0, "")
+    else:
+        return (0, comment)
+
+
 def parse_trains(trains):
     _trains = defaultdict(list)
     for _train in trains["features"]:
@@ -124,6 +153,8 @@ def parse_trains(trains):
                             data.get("schdep", None), data.get("tz")
                         ),
                         "comment": data.get("schcmnt", None),
+                        "pretty_comment": parse_comment(data.get("schcmnt", ""))[1],
+                        "status": parse_comment(data.get("schcmnt", ""))[0],
                     },
                     "estimated": {
                         "arrival": parse_date(data.get("estarr", None), data.get("tz")),
@@ -132,6 +163,14 @@ def parse_trains(trains):
                         ),
                         "arrival_comment": data.get("estarrcmnt", None),
                         "departure_comment": data.get("estdepcmnt", None),
+                        "pretty_arrival_comment": parse_comment(
+                            data.get("estarrcmnt", "")
+                        )[1],
+                        "pretty_departure_comment": parse_comment(
+                            data.get("estdepcmnt", "")
+                        )[1],
+                        "status": parse_comment(data.get("estdepcmnt", ""))[0]
+                        + parse_comment(data.get("estarrcmnt", ""))[0],
                     },
                     "actual": {
                         "arrival": parse_date(
@@ -141,11 +180,16 @@ def parse_trains(trains):
                             data.get("postdep", None), data.get("tz")
                         ),
                         "comment": data.get("postcmnt", None),
+                        "pretty_comment": parse_comment(data.get("postcmnt", ""))[1],
+                        "status": parse_comment(data.get("postcmnt", ""))[0],
                     },
                 }
         cur_tz = (
             _stations[_train["properties"]["EventCode"]]["tz"]
-            if _train["properties"]["EventCode"] is not None
+            if (
+                _train["properties"]["EventCode"] is not None
+                and _train["properties"]["EventCode"] in _stations
+            )
             else _train["properties"]["OriginTZ"]
         )
         _trains[_train["properties"]["TrainNum"]].append(

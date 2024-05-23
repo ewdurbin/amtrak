@@ -1,6 +1,10 @@
+{% macro statuscolor(status) -%}
+  {% if status < 1 %}maroon{% elif status == 0 %}grey{% elif status > 1 %}green{% else %}black{% endif %}
+{%- endmacro %}
+
   <table style="font-size: .9em">
     <tr>
-      <th>Station</th><th>Arrival</th><th>Comment</th><th>Departure</th><th>Comment</th>
+      <th>Station</th><th>Arrival</th><th>Departure</th>
     </tr>
     {% for station in train["stations"].values() %}
     <tr>
@@ -8,41 +12,39 @@
       <td>
         {% if station["arrived"] %}
           {% if station["actual"]["arrival"] %}
-            <span style="color: green">{{ station["actual"]["arrival"].astimezone(station["actual"]["arrival"].tzinfo).strftime("%-I:%M %p %Z") }}</span>
+            <span style="color: black; font-weight: bold;">{{ station["actual"]["arrival"].astimezone(station["actual"]["arrival"].tzinfo).strftime("%-I:%M %p %Z") }}</span>
           {% endif %}
         {% else %}
           {% if station["estimated"]["arrival"] %}
-            <span style="color: grey">{{ station["estimated"]["arrival"].astimezone(station["estimated"]["arrival"].tzinfo).strftime("%-I:%M %p %Z") }}</span>
+            <span style="color: grey;">{{ station["estimated"]["arrival"].astimezone(station["estimated"]["arrival"].tzinfo).strftime("%-I:%M %p %Z") }}</span>
           {% endif %}
         {% endif %}
-      </td>
-      <td>
         {% if station["arrived"] %}
-          <small>{% if station["actual"]["comment"] %}{{ station["actual"]["comment"] }}{% endif %}</small>
+          <br><small style="float: right; color: {{ statuscolor(station["actual"]["status"]) }};">{% if station["actual"]["pretty_comment"] %}{{ station["actual"]["pretty_comment"] }}{% endif %}</small>
         {% else %}
-          <small>{% if station["estimated"]["arrival_comment"] %}{{ station["estimated"]["arrival_comment"] }}{% endif %}</small>
+          <br><small style="float: right; color: {{ statuscolor(station["estimated"]["status"]) }};">{% if station["estimated"]["pretty_arrival_comment"] %}{{ station["estimated"]["pretty_arrival_comment"] }}{% endif %}</small>
         {% endif %}
       </td>
       <td>
         {% if station["departed"] %}
           {% if station["actual"]["departure"] %}
-            <span style="color: green">{{ station["actual"]["departure"].astimezone(station["actual"]["departure"].tzinfo).strftime("%-I:%M %p %Z") }}</span>
+            <span style="color: black; font-weight: bold;">{{ station["actual"]["departure"].astimezone(station["actual"]["departure"].tzinfo).strftime("%-I:%M %p %Z") }}</span>
           {% endif %}
         {% else %}
           {% if station["estimated"]["departure"] %}
-            <span style="color: grey">{{ station["estimated"]["departure"].astimezone(station["estimated"]["departure"].tzinfo).strftime("%-I:%M %p %Z") }}</span>
+            <span style="color: grey;">{{ station["estimated"]["departure"].astimezone(station["estimated"]["departure"].tzinfo).strftime("%-I:%M %p %Z") }}</span>
           {% endif %}
         {% endif %}
-      </td>
-      <td>
         {% if station["departed"] %}
-          <small>{% if station["actual"]["comment"] %}{{ station["actual"]["comment"] }}{% endif %}</small>
+          <br><small style="float: right; color: {{ statuscolor(station["actual"]["status"]) }};">{% if station["actual"]["pretty_comment"] %}{{ station["actual"]["pretty_comment"] }}{% endif %}</small>
         {% else %}
-          <small>{% if station["estimated"]["departure_comment"] %}{{ station["estimated"]["departure_comment"] }}{% endif %}</small>
+          <br><small style="float: right; color: {{ statuscolor(station["estimated"]["status"]) }};">{% if station["estimated"]["pretty_departure_comment"] %}{{ station["estimated"]["pretty_departure_comment"] }}{% endif %}</small>
         {% endif %}
       </td>
     </tr>
     {% endfor %}
   </table>
-  <small>Last Updated (from Amtrak): {{ train["last_update"].astimezone(train["last_update"].tzinfo).strftime("%-I:%M:%S %p %Z") }}</small><br>
-  <small>Last Fetched (by this site): {{ train["last_fetched"].astimezone(train["last_fetched"].tzinfo).strftime("%-I:%M:%S %p %Z") }}</small>
+  <div style="width: 100%; max-width: 25em;">
+    <span><small>Last Updated (from Amtrak): {{ train["last_update"].astimezone(train["last_update"].tzinfo).strftime("%-I:%M:%S %p %Z") }}</small><br></span>
+    <span><small>Last Fetched (by this site): {{ train["last_fetched"].astimezone(train["last_fetched"].tzinfo).strftime("%-I:%M:%S %p %Z") }}</small></span>
+  </div>
