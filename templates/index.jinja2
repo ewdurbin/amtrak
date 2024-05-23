@@ -1,0 +1,50 @@
+{% extends 'base.jinja2' %}
+{% block content %}
+<div style="width: 100%; max-width: 30em;">
+<h1>amtrak.live</h1>
+
+<p>
+  This is a the lightest weight tracker <a href="https://durbin.ee">I</a> could imagine (and implement).
+</p>
+
+<p>
+  Only <a href="/trains"><b>active</b> trains</a> are available. No historic data is kept, and likely never will be!
+</p>
+
+<h2>What's here</h2>
+
+<ul>
+  <li>An index of <a href="/trains"><b>active</b> trains</a></li>
+  <li>Pages for a given train number, that will load the most recently departed active train for that train number</li>
+  <ul><li>Like <a href="/trains/42"><code>https://amtrak.live/trains/42</code></a> for the Pennsylvanian (42)</li></ul>
+  <li>Pages for _specific_ trains when multiple <b>active</b> trains are running for a given train number</li>
+  <ul>
+    <li>For example, the <a href="/trains/6">California Zephyr (6)</a> often has multiple trains on the line with different initial departure dates</li>
+    <li><code>https://amtrak.live/trains/6/YYYY-MM-DD</code></li>
+    <li>Like <code>https://amtrak.live/trains/6/2024-05-23</code></li>
+  </ul>
+  <br>
+  <li>JSON!</li>
+  <ul>
+    <li>For basically every URL, appending <code>/json</code> will give you a lump of JSON, to do with as you please.</li>
+  </ul>
+</ul>
+
+<h2>Why?</h2>
+
+<p>
+  Nearly every other Amtrak train tracker has become bloated with ads, overkill Javascript, and provides a poor experience on <code>Amtrak_WiFi</code>... and often even on a solid internet connection.
+</p>
+
+<p>
+  This tracker is built to be optimized for the shittiest internet connection, self-refresh, and require nothing more than opening your phone to the already loaded page to get the latest data. <i>No refreshing required</i>.
+</p> 
+
+<p>
+  If you appreciate this tool, I welcome tips to EWDurbin on Venmo and Cash.app.
+</p>
+
+<hr>
+</div>
+
+{% endblock %}

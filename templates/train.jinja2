@@ -5,7 +5,7 @@
 {% if train_ids|length > 1 %}
   <small>Other trains:</small><br>
   {% for id, date in train_ids %}
-    {% if train["id"] != id %}<small>  * <a href="/trains/{{ train["train_number"] }}/{{ id }}">Initial Departure: {{ date.strftime("%Y-%m-%d") }}</a></small><br>{% endif %}
+    {% if train["id"] != id %}<small>  * <a href="/trains/{{ train["train_number"] }}/{{ date.strftime("%Y-%m-%d") }}">Initial Departure: {{ date.strftime("%Y-%m-%d") }}</a></small><br>{% endif %}
   {% endfor %}
   <br>
 {% endif %}

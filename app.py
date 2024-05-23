@@ -62,6 +62,12 @@ async def refresh_trains_task(app):
             return
 
 
+@routes.get("/")
+@aiohttp_jinja2.template("index.jinja2")
+async def index(request):
+    return {}
+
+
 @routes.get("/trains")
 @aiohttp_jinja2.template("trains.jinja2")
 async def trains(request):
@@ -86,8 +92,13 @@ async def train_json(request):
             return web.json_response(data[train_number], dumps=json_dumps)
         else:
             for train in data[train_number]:
-                if train["id"] == int(train_id):
-                    return web.json_response(train, dumps=json_dumps)
+                try:
+                    _train_id = int(train_id)
+                    if train["id"] == _train_id:
+                        return web.json_response(train, dumps=json_dumps)
+                except ValueError:
+                    if train["departure_date"].strftime("%Y-%m-%d") == train_id:
+                        return web.json_response(train, dumps=json_dumps)
     return web.json_response({"message": "Train not found"}, status=404)
 
 
@@ -106,11 +117,25 @@ async def train_partial(request):
             }
         else:
             for train in data[train_number]:
-                if train["id"] == int(train_id):
-                    return {
-                        "train": train,
-                        "train_ids": [t["id"] for t in data[train_number]],
-                    }
+                try:
+                    _train_id = int(train_id)
+                    if train["id"] == _train_id:
+                        return {
+                            "train": train,
+                            "train_ids": [
+                                (t["id"], t["departure_date"])
+                                for t in data[train_number]
+                            ],
+                        }
+                except ValueError:
+                    if train["departure_date"].strftime("%Y-%m-%d") == train_id:
+                        return {
+                            "train": train,
+                            "train_ids": [
+                                (t["id"], t["departure_date"])
+                                for t in data[train_number]
+                            ],
+                        }
     raise web.HTTPNotFound(reason="Train not found")
 
 
@@ -131,13 +156,25 @@ async def train(request):
             }
         else:
             for train in data[train_number]:
-                if train["id"] == int(train_id):
-                    return {
-                        "train": train,
-                        "train_ids": [
-                            (t["id"], t["departure_date"]) for t in data[train_number]
-                        ],
-                    }
+                try:
+                    _train_id = int(train_id)
+                    if train["id"] == _train_id:
+                        return {
+                            "train": train,
+                            "train_ids": [
+                                (t["id"], t["departure_date"])
+                                for t in data[train_number]
+                            ],
+                        }
+                except ValueError:
+                    if train["departure_date"].strftime("%Y-%m-%d") == train_id:
+                        return {
+                            "train": train,
+                            "train_ids": [
+                                (t["id"], t["departure_date"])
+                                for t in data[train_number]
+                            ],
+                        }
     raise web.HTTPNotFound(reason="Train not found")
 
 
