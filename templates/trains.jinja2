@@ -10,7 +10,7 @@
 {% for route_name, trains in all_trains|groupby("route_name") %}
 <h2>{{ route_name }}</h2>
 {% for train in trains|sort(attribute="train_number") %}
-  {{ train["train_number"] }}
+  <a href="/trains/{{ train["train_number"] }}/{{ train["id"] }}">{{ train["train_number"] }}</a>
 {% endfor %}
 {% endfor %}
 {% endblock %}

@@ -138,10 +138,19 @@ def parse_trains(trains):
     _trains = defaultdict(list)
     for _train in trains["features"]:
         _stations = OrderedDict()
+        _departure_date = None
         for i in range(100):
             data = _train["properties"].get(f"Station{i}", None)
             if data is not None:
                 data = json.loads(data)
+                if _departure_date is None:
+                    _departure_date = parse_date(
+                        data.get("postdep", None), data.get("tz")
+                    )
+                if _departure_date is None:
+                    _departure_date = parse_date(
+                        data.get("estdep", None), data.get("tz")
+                    )
                 _stations[data["code"]] = {
                     "code": data["code"],
                     "tz": TIMEZONES[data["tz"]].key,
@@ -197,6 +206,7 @@ def parse_trains(trains):
                 "route_name": _train["properties"]["RouteName"],
                 "train_number": _train["properties"]["TrainNum"],
                 "id": _train["properties"]["ID"],
+                "departure_date": _departure_date,
                 "last_update": parse_date(_train["properties"]["LastValTS"], cur_tz),
                 "stations": _stations,
                 "last_fetched": datetime.datetime.utcnow()

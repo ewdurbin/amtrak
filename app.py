@@ -76,11 +76,18 @@ async def trains_json(request):
 
 
 @routes.get("/trains/{train_number}/json")
+@routes.get("/trains/{train_number}/{train_id}/json")
 async def train_json(request):
     data = request.app["_trains"]
     train_number = request.match_info["train_number"]
+    train_id = request.match_info.get("train_id")
     if train_number in data.keys():
-        return web.json_response(data[train_number], dumps=json_dumps)
+        if train_id is None:
+            return web.json_response(data[train_number], dumps=json_dumps)
+        else:
+            for train in data[train_number]:
+                if train["id"] == int(train_id):
+                    return web.json_response(train, dumps=json_dumps)
     return web.json_response({"message": "Train not found"}, status=404)
 
 
@@ -118,14 +125,18 @@ async def train(request):
         if train_id is None:
             return {
                 "train": data[train_number][0],
-                "train_ids": [t["id"] for t in data[train_number]],
+                "train_ids": [
+                    (t["id"], t["departure_date"]) for t in data[train_number]
+                ],
             }
         else:
             for train in data[train_number]:
                 if train["id"] == int(train_id):
                     return {
                         "train": train,
-                        "train_ids": [t["id"] for t in data[train_number]],
+                        "train_ids": [
+                            (t["id"], t["departure_date"]) for t in data[train_number]
+                        ],
                     }
     raise web.HTTPNotFound(reason="Train not found")
 
@@ -146,6 +157,8 @@ async def start_task(app):
 
 BASE_DIR = Path(__file__).resolve().parent
 app = web.Application()
+app.add_routes([web.static("/static", "static", append_version=True)])
+app["static_root_url"] = "/static"
 aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(BASE_DIR / "templates"))
 app["tasks"] = []
 app.on_startup.append(start_task)
