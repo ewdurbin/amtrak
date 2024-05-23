@@ -10,7 +10,11 @@
 {% for route_name, trains in all_trains|groupby("route_name") %}
 <h2>{{ route_name }}</h2>
 {% for train in trains|sort(attribute="train_number") %}
+  {% if train["departure_date"] %}
+  <a href="/trains/{{ train["train_number"] }}/{{ train["departure_date"].strftime("%Y-%m-%d") }}">{{ train["train_number"] }}</a>
+  {% else %}
   <a href="/trains/{{ train["train_number"] }}/{{ train["id"] }}">{{ train["train_number"] }}</a>
+  {% endif %}
 {% endfor %}
 {% endfor %}
 {% endblock %}
