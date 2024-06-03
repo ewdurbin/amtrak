@@ -8,7 +8,7 @@
     </tr>
     {% for station in train["stations"].values() %}
     <tr>
-      <th>{{ station["code"] }}</th>
+      <th>{{ station["code"] }}<br><small style="font-weight: normal; color: grey;">{{ stations[station["code"]]["station_name"] }}</small></th>
       <td>
         {% if station["arrived"] %}
           {% if station["actual"]["arrival"] %}

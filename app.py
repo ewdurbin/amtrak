@@ -11,7 +11,7 @@ from aiohttp import web
 import aiohttp_jinja2
 import jinja2
 
-from amtrak import decrypt_data, parse_crypto, parse_trains
+from amtrak import decrypt_data, parse_crypto, parse_stations, parse_trains
 from util import DateTimeEncoder
 
 routes = web.RouteTableDef()
@@ -46,6 +46,16 @@ async def fetch_trains():
     return parse_trains(json.loads(decrypt_data(_data, public_key, salt, iv)))
 
 
+async def fetch_stations():
+    public_key, salt, iv = await fetch_crypto()
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            "https://maps.amtrak.com/services/MapDataService/stations/trainStations"
+        ) as resp:
+            _data = await resp.read()
+    return parse_stations(json.loads(decrypt_data(_data, public_key, salt, iv)))
+
+
 async def refresh_trains_task(app):
     while True:
         try:
@@ -58,6 +68,22 @@ async def refresh_trains_task(app):
             except Exception as exc:
                 traceback.print_exception(exc)
             await asyncio.sleep(10)
+        except concurrent.futures.CancelledError:
+            return
+
+
+async def refresh_stations_task(app):
+    while True:
+        try:
+            print("refreshing stations...")
+            try:
+                _stations = await fetch_stations()
+                app["_stations"] = _stations
+            except concurrent.futures.CancelledError:
+                raise
+            except Exception as exc:
+                traceback.print_exception(exc)
+            await asyncio.sleep(120)
         except concurrent.futures.CancelledError:
             return
 
@@ -121,6 +147,7 @@ async def train_partial(request):
                     _train_id = int(train_id)
                     if train["id"] == _train_id:
                         return {
+                            "stations": request.app["_stations"],
                             "train": train,
                             "train_ids": [
                                 (t["id"], t["departure_date"])
@@ -130,6 +157,7 @@ async def train_partial(request):
                 except ValueError:
                     if train["departure_date"].strftime("%Y-%m-%d") == train_id:
                         return {
+                            "stations": request.app["_stations"],
                             "train": train,
                             "train_ids": [
                                 (t["id"], t["departure_date"])
@@ -149,6 +177,7 @@ async def train(request):
     if train_number in data.keys():
         if train_id is None:
             return {
+                "stations": request.app["_stations"],
                 "train": data[train_number][0],
                 "train_ids": [
                     (t["id"], t["departure_date"]) for t in data[train_number]
@@ -160,6 +189,7 @@ async def train(request):
                     _train_id = int(train_id)
                     if train["id"] == _train_id:
                         return {
+                            "stations": request.app["_stations"],
                             "train": train,
                             "train_ids": [
                                 (t["id"], t["departure_date"])
@@ -169,6 +199,7 @@ async def train(request):
                 except ValueError:
                     if train["departure_date"].strftime("%Y-%m-%d") == train_id:
                         return {
+                            "stations": request.app["_stations"],
                             "train": train,
                             "train_ids": [
                                 (t["id"], t["departure_date"])
@@ -185,11 +216,17 @@ async def cancel_tasks(app):
 
 async def start_task(app):
     app["_trains"] = {}
+    app["_stations"] = {}
     _refresh_trains_task = asyncio.ensure_future(
         refresh_trains_task(app),
         loop=asyncio.get_event_loop(),
     )
     app["tasks"].append(_refresh_trains_task)
+    _refresh_stations_task = asyncio.ensure_future(
+        refresh_stations_task(app),
+        loop=asyncio.get_event_loop(),
+    )
+    app["tasks"].append(_refresh_stations_task)
 
 
 BASE_DIR = Path(__file__).resolve().parent
