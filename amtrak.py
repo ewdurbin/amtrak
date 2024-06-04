@@ -151,6 +151,10 @@ def parse_trains(trains):
                     _departure_date = parse_date(
                         data.get("estdep", None), data.get("tz")
                     )
+                if _departure_date is None:
+                    _departure_date = parse_date(
+                        data.get("schdep", None), data.get("tz")
+                    )
                 _stations[data["code"]] = {
                     "code": data["code"],
                     "tz": TIMEZONES[data["tz"]].key,
