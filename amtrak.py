@@ -204,11 +204,15 @@ def parse_trains(trains):
         _trains[_train["properties"]["TrainNum"]].append(
             {
                 "route_name": _train["properties"]["RouteName"],
-                "train_number": _train["properties"]["TrainNum"],
+                "train_number": int(_train["properties"]["TrainNum"]),
                 "id": _train["properties"]["ID"],
                 "departure_date": _departure_date,
                 "last_update": parse_date(_train["properties"]["LastValTS"], cur_tz),
                 "stations": _stations,
+                "terminuses": (next(iter(_stations)), next(reversed(_stations))),
+                "scheduled_departure": _stations[next(iter(_stations))]["scheduled"][
+                    "departure"
+                ],
                 "last_fetched": datetime.datetime.utcnow()
                 .replace(microsecond=0)
                 .astimezone(tz=TIMEZONES[cur_tz]),
