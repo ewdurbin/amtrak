@@ -1,24 +1,24 @@
 import asyncio
 import concurrent.futures
 import json
+import os
 import traceback
-from functools import partial
 from pathlib import Path
 
-
 import aiohttp
-from aiohttp import web
 import aiohttp_jinja2
 import jinja2
+import orjson
+from aiohttp import web
 
 from amtrak import decrypt_data, parse_crypto, parse_stations, parse_trains
-from util import DateTimeEncoder
 
 routes = web.RouteTableDef()
 
-json_dumps = partial(json.dumps, cls=DateTimeEncoder)
 
-import os
+def json_dumps(*a, **kw):
+    return orjson.dumps(*a, **kw).decode()
+
 
 os.environ["TZ"] = "UTC"
 

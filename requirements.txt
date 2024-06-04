@@ -5,3 +5,4 @@ black==24.3.0
 cryptography==42.0.5
 flake8==7.0.0
 requests==2.31.0
+orjson==3.10.3

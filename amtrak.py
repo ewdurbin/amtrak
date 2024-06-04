@@ -1,10 +1,10 @@
-import datetime
 import base64
-import json
+import datetime
 import re
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict, defaultdict
 from zoneinfo import ZoneInfo
 
+import orjson
 import requests
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -142,7 +142,7 @@ def parse_trains(trains):
         for i in range(100):
             data = _train["properties"].get(f"Station{i}", None)
             if data is not None:
-                data = json.loads(data)
+                data = orjson.loads(data)
                 if _departure_date is None:
                     _departure_date = parse_date(
                         data.get("postdep", None), data.get("tz")
