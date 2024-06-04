@@ -107,7 +107,7 @@ def parse_date(date, timezone_identifier):
 
 
 comment_pattern = re.compile(
-    r"^((?P<hr>\d?\d) HR )?((?P<mi>\d?\d) MI)? (?P<state>LATE|EARLY)$"
+    r"^((?P<hr>\d?\d) HR )?((?P<mi>\d?\d) MI )?(?P<state>LATE|EARLY)$"
 )
 
 
@@ -120,12 +120,12 @@ def parse_comment(comment):
         if status == "LATE":
             return (
                 -1,
-                f"{str(hour).zfill(2) if hour else '00'}:{str(minutes).zfill(2)} {status.lower()}",
+                f"{str(hour).zfill(2) if hour else '00'}:{str(minutes).zfill(2) if minutes else '00'} {status.lower()}",
             )
         elif status == "EARLY":
             return (
                 1,
-                f"{str(hour).zfill(2) if hour else '00'}:{str(minutes).zfill(2)} {status.lower()}",
+                f"{str(hour).zfill(2) if hour else '00'}:{str(minutes).zfill(2) if minutes else '00'} {status.lower()}",
             )
         return
     elif comment == "ON TIME":
