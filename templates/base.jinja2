@@ -28,10 +28,22 @@
     </style>
   </head>
   <body style="font-family: serif;">
+    <div style="width: 100%; font-size: smaller; max-width: 30em; background-color: #FFE1E6; color: grey; text-align: center;">
+      <span style="width: 100%;">This application is being objected to by Amtrak via bogus malware/phishing complaints leading to inaccesibility on some domains.</span><br>
+      <span style="width: 100%;">If you're unable to access it at {{ request.headers.get("HOST") }}, try one of:</span><br> 
+      <span style="width: 100%;">
+    {% set domains = ['amtrack.live', 'amtrak.live', 'trains.durbin.ee'] %}
+    {% if request.headers.get("HOST") in domains %}
+      {% set foo = domains.remove(request.headers.get("HOST")) %}
+    {% endif %}
+    {% for domain in domains %}
+      {% if loop.last %} or {% endif %}<a href="https://{{ domain }}">{{ domain }}</a></span>
+    {% endfor %}
+    </div>
     {% block content %}
     {% endblock %}
   </body>
   <footer style="font-family: serif; margin-top: 1em; width: 100%; max-width: 25em;">
-    <small>Train status is sourced from Amtrak's <a href="https://www.amtrak.com/track-your-train.html">Track Your Train Map</a>, which should be considered the authoritative source for train information. This site is not affiliated with Amtrak, and no guarantees are made as to accuracy, timeliness or completeness of the data shown. Please use at your own risk.</small>
+    <small>Train status is sourced from Amtrak's <a href="https://www.amtrak.com/track-your-train.html">Track Your Train Map</a>, which should be the authoritative source for train information. This site is not affiliated with Amtrak, and no guarantees are made as to accuracy, timeliness or completeness of the data shown. Please use at your own risk.</small>
   </footer>
 </html>

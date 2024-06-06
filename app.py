@@ -229,11 +229,19 @@ async def start_task(app):
     app["tasks"].append(_refresh_stations_task)
 
 
+async def request_processor(request):
+    return {"request": request}
+
+
 BASE_DIR = Path(__file__).resolve().parent
 app = web.Application()
 app.add_routes([web.static("/static", "static", append_version=True)])
 app["static_root_url"] = "/static"
-aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(BASE_DIR / "templates"))
+aiohttp_jinja2.setup(
+    app,
+    loader=jinja2.FileSystemLoader(BASE_DIR / "templates"),
+    context_processors=[request_processor],
+)
 app["tasks"] = []
 app.on_startup.append(start_task)
 app.on_shutdown.append(cancel_tasks)

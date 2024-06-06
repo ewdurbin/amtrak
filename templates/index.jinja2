@@ -1,7 +1,14 @@
 {% extends 'base.jinja2' %}
 {% block content %}
 <div style="width: 100%; max-width: 30em;">
+{% if request.headers.get('HOST') in ('www.amtrack.live', 'amtrack.live') %}
 <h1>amtra<span style="color: orange;">c</span>k.live</h1>
+{% elif request.headers.get('HOST') != None %}
+<h1>{{ request.headers.get('HOST') }}</h1>
+<p>(aka (amtra<span style="color: orange;">c</span>k.live))</p>
+{% else %}
+<h1>amtrak.live</h1>
+{% endif %}
 
 <p>
   This is a the lightest weight tracker <a href="https://durbin.ee">I</a> could imagine (and implement).
