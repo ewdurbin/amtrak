@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <meta name=viewport content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name=viewport content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     {% block extra_head %}
     {% endblock %}
 
@@ -28,10 +28,10 @@
       }
     </style>
 
-    <link rel="apple-touch-icon" sizes="180x180" href="static/favicon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="static/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="static/favicon/favicon-16x16.png">
-    <link rel="manifest" href="static/favicon/site.webmanifest">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/static/favicon/site.webmanifest">
     {% block opengraph %}
     <title>{{ request.headers.get("HOST") }}</title>
     <meta property="og:title" content="{{ request.headers.get('HOST') }}" />
@@ -43,7 +43,7 @@
     <meta property="og:image" content="https://{{ request.headers.get('HOST') }}/static/opengraph.png" />
   </head>
   <body style="font-family: serif;">
-    <div style="width: 100%; font-size: smaller; max-width: 30em; background-color: #FFE1E6; color: grey; text-align: center;">
+    <div style="width: 100%; font-size: smaller; max-width: 30em; background-color: #FFE1E6; color: #111111; text-align: center;">
       <span style="width: 100%;">This application is being objected to by Amtrak via bogus malware/phishing complaints leading to inaccesibility on some domains.</span><br>
       <span style="width: 100%;">If you're unable to access it at {{ request.headers.get("HOST") }}, try one of:</span><br> 
       <span style="width: 100%;">
