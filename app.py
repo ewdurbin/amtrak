@@ -9,8 +9,8 @@ import aiohttp
 import aiohttp_jinja2
 import jinja2
 import orjson
-from aiohttp import web
 import sentry_sdk
+from aiohttp import web
 
 from amtrak import decrypt_data, parse_crypto, parse_stations, parse_trains
 

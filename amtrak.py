@@ -2,6 +2,7 @@ import base64
 import datetime
 import re
 from collections import OrderedDict, defaultdict
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import orjson
@@ -215,21 +216,31 @@ def parse_trains(trains):
             ]
         except StopIteration:
             scheduled_departure = ""
-        _trains[_train["properties"]["TrainNum"]].append(
-            {
-                "route_name": _train["properties"]["RouteName"],
-                "train_number": int(_train["properties"]["TrainNum"]),
-                "id": _train["properties"]["ID"],
-                "departure_date": _departure_date,
-                "last_update": parse_date(_train["properties"]["LastValTS"], cur_tz),
-                "stations": _stations,
-                "terminuses": terminuses,
-                "scheduled_departure": scheduled_departure,
-                "last_fetched": datetime.datetime.utcnow()
-                .replace(microsecond=0)
-                .astimezone(tz=TIMEZONES[cur_tz]),
-            }
-        )
+        _data = {
+            "route_name": _train["properties"]["RouteName"],
+            "train_number": int(_train["properties"]["TrainNum"]),
+            "id": _train["properties"]["ID"],
+            "departure_date": _departure_date,
+            "last_update": parse_date(_train["properties"]["LastValTS"], cur_tz),
+            "stations": _stations,
+            "terminuses": terminuses,
+            "scheduled_departure": scheduled_departure,
+            "last_fetched": datetime.datetime.utcnow()
+            .replace(microsecond=0)
+            .astimezone(tz=TIMEZONES[cur_tz]),
+        }
+        _trains[_train["properties"]["TrainNum"]].append(_data)
+        Path(f"data/{_data['train_number']}/id").mkdir(parents=True, exist_ok=True)
+        Path(f"data/{_data['train_number']}/date").mkdir(parents=True, exist_ok=True)
+        with open(f"data/{_data['train_number']}/id/{_data['id']}.json", "wb") as f:
+            f.write(orjson.dumps(_data))
+        if _data["departure_date"]:
+            if not Path(
+                f"data/{_data['train_number']}/date/{_data['departure_date'].strftime('%Y-%m-%d')}.json"
+            ).exists():
+                Path(
+                    f"data/{_data['train_number']}/date/{_data['departure_date'].strftime('%Y-%m-%d')}.json"
+                ).symlink_to(Path(f"../id/{_data['id']}.json"))
     return _trains
 
 
