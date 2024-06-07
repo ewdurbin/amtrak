@@ -1,4 +1,8 @@
 {% extends 'base.jinja2' %}
+{% block opengraph %}
+    <title>{{ request.headers.get("HOST") }} - Active Trains</title>
+    <meta property="og:title" content="{{ request.headers.get('HOST') }} - Active Trains" />
+{% endblock %}
 {% block content %}
 <h1>Active Trains</h1>
 {% set all_trains = [] %}

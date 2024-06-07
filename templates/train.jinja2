@@ -1,4 +1,8 @@
 {% extends 'base.jinja2' %}
+{% block opengraph %}
+    <title>{{ request.headers.get("HOST") }} - {{ train["route_name"] }} #{{ train["train_number"] }} </title>
+    <meta property="og:title" content="{{ request.headers.get('HOST') }} - {{ train["route_name"] }} #{{ train["train_number"] }}" />
+{% endblock %}
 {% block content %}
 <h1 style="margin-block-end: .25em; margin-block-start: .25em;">{{ train["route_name"] }} #{{ train["train_number"] }}</h1>
 <p style="margin-block-end: .25em; margin-block-start: .25em;"><small>Initial Departure: {{ train["departure_date"].strftime("%Y-%m-%d") }}</small></p>

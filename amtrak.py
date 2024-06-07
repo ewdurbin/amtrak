@@ -1,5 +1,6 @@
 import base64
 import datetime
+import os
 import re
 from collections import OrderedDict, defaultdict
 from pathlib import Path
@@ -230,17 +231,20 @@ def parse_trains(trains):
             .astimezone(tz=TIMEZONES[cur_tz]),
         }
         _trains[_train["properties"]["TrainNum"]].append(_data)
-        Path(f"data/{_data['train_number']}/id").mkdir(parents=True, exist_ok=True)
-        Path(f"data/{_data['train_number']}/date").mkdir(parents=True, exist_ok=True)
-        with open(f"data/{_data['train_number']}/id/{_data['id']}.json", "wb") as f:
-            f.write(orjson.dumps(_data))
-        if _data["departure_date"]:
-            if not Path(
-                f"data/{_data['train_number']}/date/{_data['departure_date'].strftime('%Y-%m-%d')}.json"
-            ).exists():
-                Path(
+        if os.environ.get("STORE_DATA") is not None:
+            Path(f"data/{_data['train_number']}/id").mkdir(parents=True, exist_ok=True)
+            Path(f"data/{_data['train_number']}/date").mkdir(
+                parents=True, exist_ok=True
+            )
+            with open(f"data/{_data['train_number']}/id/{_data['id']}.json", "wb") as f:
+                f.write(orjson.dumps(_data))
+            if _data["departure_date"]:
+                if not Path(
                     f"data/{_data['train_number']}/date/{_data['departure_date'].strftime('%Y-%m-%d')}.json"
-                ).symlink_to(Path(f"../id/{_data['id']}.json"))
+                ).exists():
+                    Path(
+                        f"data/{_data['train_number']}/date/{_data['departure_date'].strftime('%Y-%m-%d')}.json"
+                    ).symlink_to(Path(f"../id/{_data['id']}.json"))
     return _trains
 
 

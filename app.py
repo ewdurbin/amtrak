@@ -213,6 +213,11 @@ async def train(request):
     raise web.HTTPNotFound(reason="Train not found")
 
 
+@routes.get("/js/script.js")
+async def dummy_script(request):
+    return web.Response(text="")
+
+
 async def cancel_tasks(app):
     for task in app["tasks"]:
         await task.cancel()
