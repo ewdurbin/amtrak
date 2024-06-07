@@ -35,10 +35,12 @@
     {% block opengraph %}
     <title>{{ request.headers.get("HOST") }}</title>
     <meta property="og:title" content="{{ request.headers.get('HOST') }}" />
+    <meta name="description" content="Ultra-lightweight Amtrak train status tracker.">
+    <meta property="og:description" content="Ultra-lightweight Amtrak train status tracker.">
     {% endblock %}
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://{{ request.headers.get('HOST') }}{{ request.path }}" />
-    <meta property="og:image" content="https://{{ request.headers.get('HOST') }}/static/favicon/android-chrome-512x512.png" />
+    <meta property="og:image" content="https://{{ request.headers.get('HOST') }}/static/opengraph.png" />
   </head>
   <body style="font-family: serif;">
     <div style="width: 100%; font-size: smaller; max-width: 30em; background-color: #FFE1E6; color: grey; text-align: center;">

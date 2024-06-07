@@ -2,6 +2,8 @@
 {% block opengraph %}
     <title>{{ request.headers.get("HOST") }} - Active Trains</title>
     <meta property="og:title" content="{{ request.headers.get('HOST') }} - Active Trains" />
+    <meta name="description" content="Active Trains - Ultra-lightweight Amtrak train status tracker.">
+    <meta property="og:description" content="Active Trains - Ultra-lightweight Amtrak train status tracker.">
 {% endblock %}
 {% block content %}
 <h1>Active Trains</h1>
