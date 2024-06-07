@@ -205,6 +205,16 @@ def parse_trains(trains):
             )
             else _train["properties"]["OriginTZ"]
         )
+        try:
+            terminuses = (next(iter(_stations)), next(reversed(_stations)))
+        except StopIteration:
+            terminuses = ("", "")
+        try:
+            scheduled_departure = _stations[next(iter(_stations))]["scheduled"][
+                "departure"
+            ]
+        except StopIteration:
+            scheduled_departure = ""
         _trains[_train["properties"]["TrainNum"]].append(
             {
                 "route_name": _train["properties"]["RouteName"],
@@ -213,10 +223,8 @@ def parse_trains(trains):
                 "departure_date": _departure_date,
                 "last_update": parse_date(_train["properties"]["LastValTS"], cur_tz),
                 "stations": _stations,
-                "terminuses": (next(iter(_stations)), next(reversed(_stations))),
-                "scheduled_departure": _stations[next(iter(_stations))]["scheduled"][
-                    "departure"
-                ],
+                "terminuses": terminuses,
+                "scheduled_departure": scheduled_departure,
                 "last_fetched": datetime.datetime.utcnow()
                 .replace(microsecond=0)
                 .astimezone(tz=TIMEZONES[cur_tz]),
