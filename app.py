@@ -10,10 +10,14 @@ import aiohttp_jinja2
 import jinja2
 import orjson
 from aiohttp import web
+import sentry_sdk
 
 from amtrak import decrypt_data, parse_crypto, parse_stations, parse_trains
 
 routes = web.RouteTableDef()
+
+if os.environ.get("SENTRY_DSN"):
+    sentry_sdk.init(dsn=os.environ.get("SENTRY_DSN"))
 
 
 def json_dumps(*a, **kw):
