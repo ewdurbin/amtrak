@@ -220,7 +220,7 @@ async def dummy_script(request):
 
 async def cancel_tasks(app):
     for task in app["tasks"]:
-        await task.cancel()
+        task.cancel()
 
 
 async def start_task(app):
