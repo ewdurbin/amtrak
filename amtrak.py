@@ -229,6 +229,7 @@ def parse_trains(trains):
             "last_fetched": datetime.datetime.utcnow()
             .replace(microsecond=0)
             .astimezone(tz=TIMEZONES[cur_tz]),
+            "state": _train["properties"]["TrainState"],
         }
         _trains[_train["properties"]["TrainNum"]].append(_data)
         if os.environ.get("STORE_DATA") is not None:

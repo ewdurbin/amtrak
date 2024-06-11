@@ -51,6 +51,6 @@
     {% endfor %}
   </table>
   <div style="width: 100%; max-width: 25em;">
-    <span><small>Last Updated (from Amtrak): {{ train["last_update"].astimezone(train["last_update"].tzinfo).strftime("%-I:%M:%S %p %Z") }}</small><br></span>
+    <span><small>Last Updated (from Amtrak): {{ train["last_update"].astimezone(train["last_update"].tzinfo).strftime("%-I:%M:%S %p %Z") }}{% if train["state"] != "Active" %} ({{train["state"]}}){% endif %}</small><br></span>
     <span><small>Last Fetched (by this site): {{ train["last_fetched"].astimezone(train["last_fetched"].tzinfo).strftime("%-I:%M:%S %p %Z") }}</small></span>
   </div>
