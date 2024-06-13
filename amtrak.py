@@ -122,12 +122,20 @@ def parse_comment(comment):
         if status == "LATE":
             return (
                 -1,
-                f"{str(hour).zfill(2) if hour else '00'}:{str(minutes).zfill(2) if minutes else '00'} {status.lower()}",
+                (
+                    f"{str(hour).zfill(2) if hour else '00'}"
+                    f":{str(minutes).zfill(2) if minutes else '00'} "
+                    f"{status.lower()}"
+                ),
             )
         elif status == "EARLY":
             return (
                 1,
-                f"{str(hour).zfill(2) if hour else '00'}:{str(minutes).zfill(2) if minutes else '00'} {status.lower()}",
+                (
+                    f"{str(hour).zfill(2) if hour else '00'}"
+                    f":{str(minutes).zfill(2) if minutes else '00'} "
+                    f"{status.lower()}"
+                ),
             )
         return
     elif comment == "ON TIME":
@@ -233,19 +241,19 @@ def parse_trains(trains):
         }
         _trains[_train["properties"]["TrainNum"]].append(_data)
         if os.environ.get("STORE_DATA") is not None:
-            Path(f"data/{_data['train_number']}/id").mkdir(parents=True, exist_ok=True)
-            Path(f"data/{_data['train_number']}/date").mkdir(
-                parents=True, exist_ok=True
+            _id_dir = f"data/{_data['train_number']}/id"
+            _date_dir = f"data/{_data['train_number']}/date"
+            Path(_id_dir).mkdir(parents=True, exist_ok=True)
+            Path(_date_dir).mkdir(parents=True, exist_ok=True)
+            _id_path = f"{_id_dir}/{_data['id']}.json"
+            _date_path = (
+                f"{_date_dir}/{_data['departure_date'].strftime('%Y-%m-%d')}.json"
             )
-            with open(f"data/{_data['train_number']}/id/{_data['id']}.json", "wb") as f:
+            with open(_id_path, "wb") as f:
                 f.write(orjson.dumps(_data))
             if _data["departure_date"]:
-                if not Path(
-                    f"data/{_data['train_number']}/date/{_data['departure_date'].strftime('%Y-%m-%d')}.json"
-                ).exists():
-                    Path(
-                        f"data/{_data['train_number']}/date/{_data['departure_date'].strftime('%Y-%m-%d')}.json"
-                    ).symlink_to(Path(f"../id/{_data['id']}.json"))
+                if not Path(_date_path).exists():
+                    Path(_date_path).symlink_to(Path(f"../id/{_data['id']}.json"))
     return _trains
 
 
