@@ -7,7 +7,7 @@
       <th>Station</th><th>Arrival</th><th>Departure</th>
     </tr>
     {% for station in train["stations"].values() %}
-    <tr>
+    <tr class="{% if station["departed"] %}departed{% endif %}">
       <th>{{ station["code"] }}<br><small style="font-weight: normal; color: grey;">{{ stations.get(station["code"], {}).get("station_name", "") }}</small></th>
       <td>
         {% if station["arrived"] %}

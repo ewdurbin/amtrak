@@ -15,7 +15,43 @@
   {% endfor %}
   <br>
 {% endif %}
-<div hx-get="/trains/{{ train["train_number"] }}/{{ train["id"] }}/_partial" hx-trigger="every 5s" hx-swap="innerHTML transition:true">
+<div><button id="toggleDeparted" onclick="toggleDeparted()">Hide Departed</button></div>
+<div hx-get="/trains/{{ train["train_number"] }}/{{ train["id"] }}/_partial" hx-trigger="every 5s" hx-swap="innerHTML transition:true" hx-indicator="#spinner">
   {% include 'train_partial.jinja2' %}
 </div>
+<span id="spinner" class="htmx-indicator" style="font-size: smaller; color: lightgrey;">Loading...</span>
+{% endblock %}
+{% block js %}
+var departedVisible = JSON.parse(localStorage.getItem("departedVisible"));
+console.log(departedVisible);
+if (departedVisible === null) {
+  departedVisible = true;
+}
+
+function updateDeparted() {
+  elements = document.getElementsByClassName('departed');
+  if (departedVisible) {
+    Array.prototype.forEach.call(elements, function(element) {
+      element.style.display = "";
+    });
+    document.getElementById("toggleDeparted").innerHTML = "Hide Departed";
+  } else {
+    Array.prototype.forEach.call(elements, function(element) {
+      element.style.display = "none";
+    });
+    document.getElementById("toggleDeparted").innerHTML = "Show Departed";
+  }
+}
+
+function toggleDeparted() {
+  if (departedVisible) {
+    departedVisible = false;
+  } else {
+    departedVisible = true;
+  }
+  updateDeparted();
+  localStorage.setItem("departedVisible", departedVisible);
+}
+
+updateDeparted();
 {% endblock %}
