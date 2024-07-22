@@ -226,7 +226,11 @@ def parse_trains(trains):
         except StopIteration:
             scheduled_departure = ""
         _data = {
-            "route_name": _train["properties"]["RouteName"],
+            "route_name": (
+                _train["properties"]["RouteName"]
+                if _train["properties"]["RouteName"]
+                else "Unknown"
+            ),
             "train_number": int(_train["properties"]["TrainNum"]),
             "id": _train["properties"]["ID"],
             "departure_date": _departure_date,
