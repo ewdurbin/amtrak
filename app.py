@@ -11,6 +11,7 @@ import jinja2
 import orjson
 import sentry_sdk
 from aiohttp import web
+from aiohttp_socks import ProxyConnector
 
 from amtrak import decrypt_data, parse_crypto, parse_stations, parse_trains
 
@@ -18,6 +19,13 @@ routes = web.RouteTableDef()
 
 if os.environ.get("SENTRY_DSN"):
     sentry_sdk.init(dsn=os.environ.get("SENTRY_DSN"))
+
+
+async def get_connector():
+    connector = None
+    if os.environ.get("ALL_PROXY"):
+        connector = ProxyConnector.from_url(os.environ.get("ALL_PROXY"))
+    return connector
 
 
 def json_dumps(*a, **kw):
@@ -28,7 +36,8 @@ os.environ["TZ"] = "UTC"
 
 
 async def fetch_crypto():
-    async with aiohttp.ClientSession() as session:
+    connector = await get_connector()
+    async with aiohttp.ClientSession(connector=connector) as session:
         async with session.get(
             "https://maps.amtrak.com/rttl/js/RoutesList.json"
         ) as resp:
@@ -42,7 +51,8 @@ async def fetch_crypto():
 
 async def fetch_trains():
     public_key, salt, iv = await fetch_crypto()
-    async with aiohttp.ClientSession() as session:
+    connector = await get_connector()
+    async with aiohttp.ClientSession(connector=connector) as session:
         async with session.get(
             "https://maps.amtrak.com/services/MapDataService/trains/getTrainsData"
         ) as resp:
@@ -52,7 +62,8 @@ async def fetch_trains():
 
 async def fetch_stations():
     public_key, salt, iv = await fetch_crypto()
-    async with aiohttp.ClientSession() as session:
+    connector = await get_connector()
+    async with aiohttp.ClientSession(connector=connector) as session:
         async with session.get(
             "https://maps.amtrak.com/services/MapDataService/stations/trainStations"
         ) as resp:
