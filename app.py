@@ -12,8 +12,11 @@ import orjson
 import sentry_sdk
 from aiohttp import web
 from aiohttp_socks import ProxyConnector
+from fake_useragent import UserAgent
 
 from amtrak import decrypt_data, parse_crypto, parse_stations, parse_trains
+
+ua = UserAgent()
 
 routes = web.RouteTableDef()
 
@@ -39,11 +42,13 @@ async def fetch_crypto():
     connector = await get_connector()
     async with aiohttp.ClientSession(connector=connector) as session:
         async with session.get(
-            "https://maps.amtrak.com/rttl/js/RoutesList.json"
+            "https://maps.amtrak.com/rttl/js/RoutesList.json",
+            headers={"User-Agent": ua.random},
         ) as resp:
             routes = await resp.json()
         async with session.get(
-            "https://maps.amtrak.com/rttl/js/RoutesList.v.json"
+            "https://maps.amtrak.com/rttl/js/RoutesList.v.json",
+            headers={"User-Agent": ua.random},
         ) as resp:
             crypto_data = await resp.json()
     return parse_crypto(routes, crypto_data)
@@ -54,7 +59,8 @@ async def fetch_trains():
     connector = await get_connector()
     async with aiohttp.ClientSession(connector=connector) as session:
         async with session.get(
-            "https://maps.amtrak.com/services/MapDataService/trains/getTrainsData"
+            "https://maps.amtrak.com/services/MapDataService/trains/getTrainsData",
+            headers={"User-Agent": ua.random},
         ) as resp:
             _data = await resp.read()
     return parse_trains(json.loads(decrypt_data(_data, public_key, salt, iv)))
@@ -65,7 +71,8 @@ async def fetch_stations():
     connector = await get_connector()
     async with aiohttp.ClientSession(connector=connector) as session:
         async with session.get(
-            "https://maps.amtrak.com/services/MapDataService/stations/trainStations"
+            "https://maps.amtrak.com/services/MapDataService/stations/trainStations",
+            headers={"User-Agent": ua.random},
         ) as resp:
             _data = await resp.read()
     return parse_stations(json.loads(decrypt_data(_data, public_key, salt, iv)))
