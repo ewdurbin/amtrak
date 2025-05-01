@@ -31,7 +31,9 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/static/favicon/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon/favicon-16x16.png">
+    {% block manifest %}
     <link rel="manifest" href="/static/favicon/site.webmanifest">
+    {% endblock %}
     {% block opengraph %}
     <title>{{ request.headers.get("HOST") }}</title>
     <meta property="og:title" content="{{ request.headers.get('HOST') }}" />
@@ -49,7 +51,7 @@
   <footer style="font-family: serif; margin-top: 1em; width: 100%; max-width: 25em;">
     <div style="width: 100%; font-size: smaller; max-width: 30em; background-color: #FFE1E6; color: #111111; text-align: center;">
       <span style="width: 100%;">This application is being objected to by Amtrak via bogus malware/phishing complaints leading to inaccesibility on some domains.</span><br>
-      <span style="width: 100%;">If you're unable to access it at {{ request.headers.get("HOST") }}, try one of:</span><br> 
+      <span style="width: 100%;">If you're unable to access it at {{ request.headers.get("HOST") }}, try one of:</span><br>
       <span style="width: 100%;">
     {% set domains = ['amtrack.live', 'amtrak.live', 'trains.durbin.ee'] %}
     {% if request.headers.get("HOST") in domains %}
