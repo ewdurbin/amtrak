@@ -189,6 +189,30 @@ async def train_partial(request):
     raise web.HTTPNotFound(reason="Train not found")
 
 
+@routes.get("/trains/{train_number}.webmanifest")
+async def webmanifest(request):
+    data = {
+        "name": "#" + request.match_info["train_number"],
+        "short_name": "#" + request.match_info["train_number"],
+        "icons": [
+            {
+                "src": "/static/favicon/android-chrome-192x192.png",
+                "sizes": "192x192",
+                "type": "image/png",
+            },
+            {
+                "src": "/static/favicon/android-chrome-512x512.png",
+                "sizes": "512x512",
+                "type": "image/png",
+            },
+        ],
+        "theme_color": "#ffffff",
+        "background_color": "#ffffff",
+        "display": "standalone",
+    }
+    return web.json_response(data, dumps=json_dumps)
+
+
 @routes.get("/trains/{train_number}")
 @routes.get("/trains/{train_number}/{train_id}")
 @aiohttp_jinja2.template("train.jinja2")

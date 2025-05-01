@@ -5,6 +5,9 @@
     <meta name="description" content="{{ train["route_name"] }} #{{ train["train_number"] }} - Ultra-lightweight Amtrak train status tracker.">
     <meta property="og:description" content="{{ train["route_name"] }} #{{ train["train_number"] }} - Ultra-lightweight Amtrak train status tracker.">
 {% endblock %}
+{% block manifest %}
+    <link rel="manifest" href="/trains/{{ train["train_number"] }}.webmanifest" />
+{% endblock %}
 {% block content %}
 <h1 style="margin-block-end: .25em; margin-block-start: .25em;">{{ train["route_name"] }} #{{ train["train_number"] }}</h1>
 <p style="margin-block-end: .25em; margin-block-start: .25em;"><small>Initial Departure: {{ train["departure_date"].strftime("%Y-%m-%d") }}</small></p>
