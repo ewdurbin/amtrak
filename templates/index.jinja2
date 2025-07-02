@@ -2,13 +2,19 @@
 {% block content %}
 <div style="width: 100%; max-width: 30em;">
 {% if request.headers.get('HOST') in ('www.amtrack.live', 'amtrack.live') %}
-<h1>amtra<span style="color: orange;">c</span>k.live</h1>
+<h1>amtra<span style="color: #FFC000;">c</span>k.live</h1>
 {% elif request.headers.get('HOST') != None %}
 <h1>{{ request.headers.get('HOST') }}</h1>
-<p>(aka (amtra<span style="color: orange;">c</span>k.live))</p>
+<p>(aka (amtra<span style="color: #FFC000;">c</span>k.live))</p>
 {% else %}
 <h1>amtrak.live</h1>
 {% endif %}
+
+<p style="background: #FFC000; padding: 1em;">
+  AMTRAK is a registered trademark of National Railroad Passenger Corporation.
+  This site is not affiliated with, sponsored by, or endorsed by AMTRAK.
+  It is provided as a service to help people locate AMTRAK trains.
+</p>
 
 <p>
   This is a the lightest weight tracker <a href="https://durbin.ee">I</a> could imagine (and implement).
@@ -55,7 +61,8 @@
 
 <a href="mailto:amtrack@durbin.ee">amtrack@durbin.ee</a>
 
-<hr>
 </div>
 
 {% endblock %}
+
+{% block footer_disclaimer %}{% endblock %}
