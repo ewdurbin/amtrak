@@ -53,7 +53,7 @@
     <div style="width: 100%; font-size: smaller; max-width: 30em; text-align: center;">
       <div style="width: 100%;">This service is also available at:</div>
       <span style="width: 100%;">
-    {% set domains = ['amtrack.live', 'amtrak.live', 'trains.durbin.ee'] %}
+    {% set domains = ['trak.am', 'amtrack.live', 'amtrak.live', 'trains.durbin.ee'] %}
     {% if request.headers.get("HOST") in domains %}
       {% set foo = domains.remove(request.headers.get("HOST")) %}
     {% endif %}
