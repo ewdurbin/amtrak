@@ -10,7 +10,7 @@
 {% endblock %}
 {% block content %}
 <h1 style="margin-block-end: .25em; margin-block-start: .25em;">{{ train["route_name"] }} #{{ train["train_number"] }}</h1>
-<p style="margin-block-end: .25em; margin-block-start: .25em;"><small>Initial Departure: {{ train["departure_date"].strftime("%Y-%m-%d") }}</small></p>
+<p style="margin-block-end: .25em; margin-block-start: .25em;"><small>Initial Departure: {{ train["departure_date"].strftime("%Y-%m-%d") }} • Train Status: {{ train.get("state", "Unknown").title() }}</small></p>
 {% if train_ids|length > 1 %}
   <small>Other trains:</small><br>
   {% for id, date in train_ids %}
