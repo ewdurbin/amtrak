@@ -238,7 +238,7 @@ def parse_trains(trains):
             "stations": _stations,
             "terminuses": terminuses,
             "scheduled_departure": scheduled_departure,
-            "last_fetched": datetime.datetime.utcnow()
+            "last_fetched": datetime.datetime.now(datetime.timezone.utc)
             .replace(microsecond=0)
             .astimezone(tz=TIMEZONES[cur_tz]),
             "state": _train["properties"]["TrainState"],

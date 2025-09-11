@@ -1,2 +1,10 @@
 [flake8]
 max-line-length = 100
+exclude =
+    venv,
+    alembic/versions,
+    .git,
+    __pycache__,
+    .venv,
+    build,
+    dist

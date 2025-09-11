@@ -17,7 +17,9 @@
 <h2>{{ route_name }}</h2>
 {% for train in trains|sort(attribute="train_number,scheduled_departure") %}
   {% if train["departure_date"] %}
-  <a href="/trains/{{ train["train_number"] }}/{{ train["departure_date"].strftime("%Y-%m-%d") }}">
+  {% set train_state = train.get("state", "").lower() %}
+  <a href="/trains/{{ train["train_number"] }}/{{ train["departure_date"].strftime("%Y-%m-%d") }}"
+     class="train-{{ train_state if train_state in ['predeparture', 'active', 'completed'] else 'active' }}">
     {{ train["train_number"] }} 
     <small>({{ train["scheduled_departure"].strftime("%-I:%M %p %-m-%-d %Z") }} {{ train["terminuses"][0] }} → {{ train["terminuses"][1] }}{% if train.get("latest_status") %} {{ train.get("latest_status") }}{% endif %})</small>
   </a><br>

@@ -1,0 +1,55 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: amtrak
+      POSTGRES_USER: amtrak
+      POSTGRES_PASSWORD: amtrak_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U amtrak"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    build: .
+    command: alembic upgrade head
+    environment:
+      DATABASE_URL: postgresql://amtrak:amtrak_password@db:5432/amtrak
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  worker:
+    build: .
+    command: python worker.py
+    environment:
+      DATABASE_URL: postgresql://amtrak:amtrak_password@db:5432/amtrak
+      TRAIN_POLL_INTERVAL: "10"
+      STATION_POLL_INTERVAL: "120"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  web:
+    build: .
+    command: python app.py
+    ports:
+      - "9000:9000"
+    environment:
+      DATABASE_URL: postgresql://amtrak:amtrak_password@db:5432/amtrak
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      worker:
+        condition: service_started
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
