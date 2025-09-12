@@ -8,7 +8,7 @@
     {% block extra_js %}
     {% endblock %}
     <script src="{{ static('js/htmx.min.js') }}"></script>
-    <script defer data-domain="trak.am,amtrak.live,amtrack.live,trains.durbin.ee" src="https://plausible.io/js/script.outbound-links.js"></script>
+    <script defer data-domain="trak.am,scamtrak.net,amtraksucks.live,amtrak.live,amtrack.live,trains.durbin.ee" src="https://plausible.io/js/script.outbound-links.js"></script>
     <style>
       a:visited {
         color: blue;
@@ -63,7 +63,7 @@
     <div style="width: 100%; font-size: smaller; max-width: 30em; text-align: center;">
       <div style="width: 100%;">This service is also available at:</div>
       <span style="width: 100%;">
-    {% set domains = ['trak.am', 'amtrack.live', 'amtrak.live', 'trains.durbin.ee'] %}
+    {% set domains = ['trak.am', 'amtraksucks.live', 'scamtrak.net', 'amtrack.live', 'amtrak.live', 'trains.durbin.ee'] %}
     {% if request.headers.get("HOST") in domains %}
       {% set foo = domains.remove(request.headers.get("HOST")) %}
     {% endif %}
