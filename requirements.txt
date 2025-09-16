@@ -12,3 +12,4 @@ psycopg[binary]==3.2.10
 requests[socks]==2.31.0
 sentry-sdk==2.5.0
 sqlalchemy==2.0.43
+watchfiles==1.0.3

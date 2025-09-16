@@ -27,7 +27,9 @@ services:
 
   worker:
     build: .
-    command: python worker.py
+    command: watchfiles --filter python "python worker.py"
+    volumes:
+      - ./:/code
     environment:
       DATABASE_URL: postgresql://amtrak:amtrak_password@db:5432/amtrak
       TRAIN_POLL_INTERVAL: "10"
@@ -39,7 +41,9 @@ services:
 
   web:
     build: .
-    command: python app.py
+    command: adev runserver --port 9000 --host 0.0.0.0 app.py
+    volumes:
+      - ./:/code
     ports:
       - "9000:9000"
     environment:

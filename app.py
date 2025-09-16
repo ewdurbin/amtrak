@@ -189,6 +189,12 @@ async def index(request):
     return {}
 
 
+@routes.get("/about")
+@aiohttp_jinja2.template("about.jinja2")
+async def about(request):
+    return {}
+
+
 @routes.get("/trains")
 @aiohttp_jinja2.template("trains.jinja2")
 async def trains(request):
