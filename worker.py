@@ -14,7 +14,7 @@ from datetime import datetime, UTC
 
 import requests
 from fake_useragent import UserAgent
-from sqlalchemy import and_
+from sqlalchemy import and_, or_, text
 
 # Import the amtrak module
 from amtrak import decrypt_data, parse_crypto, parse_stations, parse_trains
@@ -305,19 +305,18 @@ def update_trains_in_db(trains_data, stations_data=None):
                     )
                     session.add(new_train)
 
-        # Clean up trains that are no longer in the API response but still marked as "Active"
-        # Find all trains where either train_state OR data->state is "Active"
-        from sqlalchemy import or_, text
+        # Clean up trains no longer in the response but marked as "Active" or "Predeparture"
+        # Find all trains where either train_state OR data->state is "Active" or "Predeparture"
 
-        # Query for trains that have Active in either field
+        # Query for trains that have Active or Predeparture in either field
         # Use database-agnostic JSON extraction
         active_trains = (
             session.query(Train)
             .filter(
                 or_(
-                    Train.train_state == "Active",
+                    Train.train_state.in_(["Active", "Predeparture"]),
                     text(
-                        "(data->>'state') = 'Active'"
+                        "(data->>'state') IN ('Active', 'Predeparture')"
                     ),  # Works for both PostgreSQL and SQLite with JSON1
                 )
             )
@@ -333,7 +332,7 @@ def update_trains_in_db(trains_data, stations_data=None):
                 if train.train_state != "Completed":
                     print(
                         f"Marking train {train.train_number} "
-                        f"(ID: {train.train_id}) as Completed - "
+                        f"(ID: {train.train_id}, was: {train.train_state}) as Completed - "
                         "no longer in API response"
                     )
                     train.train_state = "Completed"
