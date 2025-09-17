@@ -30,15 +30,18 @@ def get_trains_from_db():
     session = get_session()
 
     try:
-        # Get active trains or trains completed in the last 6 hours
+        # Get active trains or trains completed in the last 6 hours (based on actual train activity, not DB updates)
+        from sqlalchemy import text
         six_hours_ago = datetime.now(UTC) - timedelta(hours=6)
+        six_hours_ago_str = six_hours_ago.isoformat()
+
         trains_query = (
             session.query(Train)
             .filter(
                 (Train.train_state.in_(["Predeparture", "Active"]))
                 | (
                     (Train.train_state == "Completed")
-                    & (Train.updated_at > six_hours_ago)
+                    & text(f"(data->>'last_update')::timestamp > '{six_hours_ago_str}'")
                 )
             )
             .order_by(Train.train_number, Train.departure_date)
@@ -96,6 +99,9 @@ def get_trains_from_db():
                                         station[category][field] = dt
                                     except (ValueError, TypeError):
                                         pass  # Keep as is if conversion fails
+
+            # Add the database updated_at timestamp to the train data
+            train_data["db_updated_at"] = train_record.updated_at
 
             # Now fix train-level datetimes to use proper timezone
             if train_data.get("stations"):

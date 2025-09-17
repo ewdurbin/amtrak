@@ -207,19 +207,50 @@ def update_trains_in_db(trains_data, stations_data=None):
                     session.add(new_train)
 
         # Clean up trains that are no longer in the API response but still marked as "Active"
-        # Find all active trains that weren't seen in this update
-        active_trains = session.query(Train).filter(Train.train_state == "Active").all()
+        # Find all trains where either train_state OR data->state is "Active"
+        from sqlalchemy import or_, text
+
+        # Query for trains that have Active in either field
+        # Use database-agnostic JSON extraction
+        active_trains = session.query(Train).filter(
+            or_(
+                Train.train_state == "Active",
+                text("(data->>'state') = 'Active'")  # Works for both PostgreSQL and SQLite with JSON1
+            )
+        ).all()
 
         for train in active_trains:
+            # If train is not in current API response, mark it as completed
             if (train.train_number, train.train_id) not in seen_train_ids:
-                # Mark train as completed if it's no longer in the API data
-                print(
-                    f"Marking train {train.train_number} "
-                    f"(ID: {train.train_id}) as Completed - "
-                    "no longer in API response"
-                )
-                train.train_state = "Completed"
-                train.updated_at = datetime.now(UTC)
+                # Check if we need to update anything
+                needs_update = False
+
+                if train.train_state != "Completed":
+                    print(
+                        f"Marking train {train.train_number} "
+                        f"(ID: {train.train_id}) as Completed - "
+                        "no longer in API response"
+                    )
+                    train.train_state = "Completed"
+                    needs_update = True
+
+                # Also update the state in the JSON data field if needed
+                if train.data and isinstance(train.data, dict):
+                    json_state = train.data.get("state")
+                    if json_state != "Completed":
+                        if not needs_update:  # Only print if we didn't already print above
+                            print(
+                                f"Fixing JSON state for train {train.train_number} "
+                                f"(ID: {train.train_id}) from '{json_state}' to 'Completed'"
+                            )
+                        # Create a new dict to ensure SQLAlchemy detects the change
+                        updated_data = dict(train.data)
+                        updated_data["state"] = "Completed"
+                        train.data = updated_data
+                        needs_update = True
+
+                if needs_update:
+                    train.updated_at = datetime.now(UTC)
 
         # Update metadata
         last_update = (
