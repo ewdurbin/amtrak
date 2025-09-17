@@ -30,8 +30,10 @@ def get_trains_from_db():
     session = get_session()
 
     try:
-        # Get active trains or trains completed in the last 6 hours (based on actual train activity, not DB updates)
+        # Get active trains or trains completed in the last 6 hours
+        # (based on actual train activity, not DB updates)
         from sqlalchemy import text
+
         six_hours_ago = datetime.now(UTC) - timedelta(hours=6)
         six_hours_ago_str = six_hours_ago.isoformat()
 

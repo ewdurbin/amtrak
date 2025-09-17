@@ -212,12 +212,18 @@ def update_trains_in_db(trains_data, stations_data=None):
 
         # Query for trains that have Active in either field
         # Use database-agnostic JSON extraction
-        active_trains = session.query(Train).filter(
-            or_(
-                Train.train_state == "Active",
-                text("(data->>'state') = 'Active'")  # Works for both PostgreSQL and SQLite with JSON1
+        active_trains = (
+            session.query(Train)
+            .filter(
+                or_(
+                    Train.train_state == "Active",
+                    text(
+                        "(data->>'state') = 'Active'"
+                    ),  # Works for both PostgreSQL and SQLite with JSON1
+                )
             )
-        ).all()
+            .all()
+        )
 
         for train in active_trains:
             # If train is not in current API response, mark it as completed
@@ -238,7 +244,9 @@ def update_trains_in_db(trains_data, stations_data=None):
                 if train.data and isinstance(train.data, dict):
                     json_state = train.data.get("state")
                     if json_state != "Completed":
-                        if not needs_update:  # Only print if we didn't already print above
+                        if (
+                            not needs_update
+                        ):  # Only print if we didn't already print above
                             print(
                                 f"Fixing JSON state for train {train.train_number} "
                                 f"(ID: {train.train_id}) from '{json_state}' to 'Completed'"
