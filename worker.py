@@ -118,6 +118,9 @@ def update_trains_in_db(trains_data, stations_data=None):
     try:
         # Don't delete old trains anymore - we want to keep historic data
 
+        # Track which trains we've seen in this update
+        seen_train_ids = set()
+
         # Insert/update train data
         for train_number, train_list in trains_data.items():
             for train in train_list:
@@ -125,6 +128,9 @@ def update_trains_in_db(trains_data, stations_data=None):
                 route_name = train.get("route_name", "")
                 departure_date = train.get("departure_date")
                 train_state = train.get("state", "")  # Predeparture, Active, Completed
+
+                # Track this train as seen
+                seen_train_ids.add((train_number, train_id))
 
                 # Filter stations to only relevant ones for this train
                 relevant_stations = None
@@ -199,6 +205,21 @@ def update_trains_in_db(trains_data, stations_data=None):
                         data=train_serializable,
                     )
                     session.add(new_train)
+
+        # Clean up trains that are no longer in the API response but still marked as "Active"
+        # Find all active trains that weren't seen in this update
+        active_trains = session.query(Train).filter(Train.train_state == "Active").all()
+
+        for train in active_trains:
+            if (train.train_number, train.train_id) not in seen_train_ids:
+                # Mark train as completed if it's no longer in the API data
+                print(
+                    f"Marking train {train.train_number} "
+                    f"(ID: {train.train_id}) as Completed - "
+                    "no longer in API response"
+                )
+                train.train_state = "Completed"
+                train.updated_at = datetime.now(UTC)
 
         # Update metadata
         last_update = (
